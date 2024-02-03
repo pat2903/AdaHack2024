@@ -1,59 +1,65 @@
-import React from 'react';
+import React, {useState} from 'react';
 import './App.css';
 
 function App() {
-  React.useEffect(() => {
-    fetch("/buy")
-      .then((res) => res.json())
-      .then((data) => console.log(data));
-  }, []);
+  const [showRestaurant, setShowRestaurant] = useState(false);
+  const [location, setLocation] = useState({
+    loaded: false,
+    coordinates: { lat: "", lng: "" }
+  });
 
-  const items = [
-    {
-      name: "Large Flat screen Television",
-      description: "Large large large flat screen television"
-    },
-    {
-      name: "Large Rounded Table",
-      description: "Rounded table with minor scratches courtesy of my cat"
-    },
-    {
-      name: "Green Northface Jacket",
-      description: "Green puffer"
-    }
-  ]
+  const onSuccess = location => {
+    setLocation({
+      loaded: true,
+      coordinates: {
+        lat: location.coords.latitude,
+        lng: location.coords.longitude,
+      },
+    });
+  };
+
+  const onError = error => {
+    setLocation({
+      loaded: true,
+      error,
+    });
+  };
 
   async function handleClick() {
-    // const res = await fetch('https:localhost:8080/buy', {
-    //   method: 'GET',
-    //   headers: {
-    //     'Authorization':'Bearer 8j4MNyQBnOuB0WWMhUM5dnm9sixNDWCVMhSuP',
-    //     'Content-Type':'application/json',
-    //     'mode':'no-cors',
-    //     'Access-Control-Allow-Origin':'*',
-    //     'Access-Control-Allow-Methods':'GET, POST,PATCH,OPTIONS'
-    //   },
-    // })
-    // const data = await res.json()
-    // console.log(data)
-    const res = await fetch('https:localhost:8080/buy')
-    console.log(res)
+    setShowRestaurant(!showRestaurant);
+
+    if (!("geolocation" in navigator)) {
+      onError({
+        code: 0,
+        message: ":(((",
+      });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(onSuccess, onError);
   }
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-gray-200">
-      <div className="text-black font-semibold py-10 text-center">
-        <h1 className="text-6xl">TITLE</h1>
-        <h2 className="text-2xl">FILLER TEXT</h2>
+      <div className="text-black font-semibold py-20 text-center">
+        <h1 className="text-6xl">RESTAURANT FINDER</h1>
+        <h2 className="text-2xl mt-10">Scan the QR code and fill in the form. When you're done, click on 'GO' and we'll find the perfect restaurant for you.</h2>
       </div>
-      <div className="flex flex-col items-center justify-center gap-y-4">
-        {items.map((feature) => (
-          <div className="flex justify-between bg-gray-300 rounded-lg mx-auto max-w-2xl w-full items-center">
-            <span className="px-4 font-semibold">{feature.name}</span>
-            <button onClick={handleClick} className="text-white font-semibold rounded-lg bg-green-400 px-4 py-2">BUY</button>
+      <div className="max-w-80">
+        <img src={require('./RestaurantFormQR.png')}  alt=""/>
+        <button onClick={handleClick} className="w-full mt-10 text-white font-semibold rounded-lg bg-green-400 px-4 py-2">GO</button>
+      </div>
+
+      {showRestaurant &&
+          <div className="text-black font-semibold py-10 text-center">
+            <h2 className="text-2xl">Based on the responses in the form, we recommend....</h2>
+            {location.loaded ? (location.error ?
+                (<div>Error: {location.error.message}</div>) :
+                (<div>Latitude {location.coordinates.lat}, Longitude {location.coordinates.lng}</div>)) :
+                (<div>Fetching location...</div>)
+            }
           </div>
-        ))}
-      </div>
+      }
     </main>
 
   );
