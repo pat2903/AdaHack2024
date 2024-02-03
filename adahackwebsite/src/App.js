@@ -1,7 +1,21 @@
 import './App.css';
 
-
 function App() {
+
+  const items = [
+    {
+      name : "Large Flat screen Television",
+      description: "Large large large flat screen television"
+    },
+    {
+      name : "Large Rounded Table",
+      description: "Rounded table with minor scratches courtesy of my cat"
+    },
+    {
+      name : "Green Northface Jacket",
+      description: "Green puffer"
+    }
+  ]
 
   async function handleClick(){
     const res = await fetch('https://api.smartsheet.com/2.0/sheets/5154267455246212', {
@@ -9,9 +23,9 @@ function App() {
       headers: {
         'Authorization':'Bearer 8j4MNyQBnOuB0WWMhUM5dnm9sixNDWCVMhSuP',
         'Content-Type':'application/json',
-        'mode':'no-cors'
-        // 'Access-Control-Allow-Origin':'*',
-        // 'Access-Control-Allow-Methods':'GET, POST,PATCH,OPTIONS'
+        'mode':'no-cors',
+        'Access-Control-Allow-Origin':'*',
+        'Access-Control-Allow-Methods':'GET, POST,PATCH,OPTIONS'
       },
     })
     const data = await res.json()
@@ -19,14 +33,21 @@ function App() {
   }
 
   return (
-    <div>
-      <header className="App-header">
-        <button onClick={handleClick}>BUY</button>
-      </header>
-      <div>
+      <main className="flex min-h-screen flex-col items-center bg-gray-200">
+        <div className="text-black font-semibold py-10 text-center">
+          <h1 className="text-6xl">TITLE</h1>
+          <h2 className="text-2xl">FILLER TEXT</h2>
+        </div>
+        <div className="flex flex-col items-center justify-center gap-y-4">
+          {items.map((feature) => (
+              <div className="flex justify-between bg-gray-300 rounded-lg mx-auto max-w-2xl w-full items-center">
+                <span className="px-4 font-semibold">{feature.name}</span>
+                <button onClick={handleClick} className="text-white font-semibold rounded-lg bg-green-400 px-4 py-2">BUY</button>
+              </div>
+          ))}
+        </div>
+      </main>
 
-      </div>
-    </div>
   );
 }
 
